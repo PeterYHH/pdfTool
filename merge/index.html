@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>PDF 合併</title>
+  <!-- 引入 pdf-lib -->
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <!-- 引入 SortableJS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+  <!-- 引入 pdf.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.6.172/pdf.min.js"></script>
+  <script>
+    // 設定 pdf.js worker 檔案位置
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.6.172/pdf.worker.min.js';
+  </script>
+  <!-- 引入 Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 30px auto;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 20px 30px;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .btn {
+      display: inline-block;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px 0;
+      transition: background 0.3s ease;
+    }
+    .btn:hover {
+      background: #0056b3;
+    }
+    #addFilesBtn {
+      margin-bottom: 20px;
+    }
+    #fileList {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    #fileList li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fafafa;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 15px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+    #fileList li .info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .previewCanvas {
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      max-width: 120px;
+    }
+    .fileName {
+      font-size: 16px;
+      color: #333;
+    }
+    .delete-btn {
+      background: #dc3545;
+      border: none;
+      color: #fff;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .delete-btn:hover {
+      background: #a71d2a;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>PDF 合併、排序、預覽、新增與刪除</h2>
+    <!-- 隱藏的檔案輸入，用於新增 PDF -->
+    <input type="file" id="pdfFiles" multiple accept="application/pdf" style="display: none;">
+    <!-- 新增檔案按鈕 -->
+    <button id="addFilesBtn" class="btn">新增檔案</button>
+    <!-- 顯示檔案列表 -->
+    <ul id="fileList"></ul>
+    <!-- 合併 PDF 按鈕 -->
+    <button id="mergeBtn" class="btn">合併 PDF</button>
+  </div>
+
+  <script>
+    const { PDFDocument } = PDFLib;
+    // 儲存檔案與對應 id 的映射與順序陣列
+    let filesArray = [];
+    let filesMap = {};
+    let fileIdCounter = 0;
+
+    const fileInput = document.getElementById('pdfFiles');
+    const fileList = document.getElementById('fileList');
+    const addFilesBtn = document.getElementById('addFilesBtn');
+    const mergeBtn = document.getElementById('mergeBtn');
+
+    console.log("程式碼已載入。");
+
+    // 新增檔案按鈕事件：點擊後觸發隱藏的檔案輸入
+    addFilesBtn.addEventListener('click', () => {
+      console.log("【新增檔案】按鈕被點擊");
+      fileInput.click();
+    });
+
+    // 檔案輸入變更事件：將選取的檔案加入列表
+    fileInput.addEventListener('change', () => {
+      const selectedFiles = Array.from(fileInput.files);
+      console.log("選取檔案：", selectedFiles);
+      selectedFiles.forEach(file => {
+        addFileItem(file);
+      });
+      // 清空檔案輸入，方便下次選取相同檔案
+      fileInput.value = "";
+    });
+
+    // 新增一個檔案項目到列表中（包含預覽、檔名與刪除按鈕）
+    function addFileItem(file) {
+      const id = fileIdCounter++;
+      filesMap[id] = file;
+      filesArray.push(file);
+
+      const li = document.createElement('li');
+      li.setAttribute('data-id', id);
+
+      const infoDiv = document.createElement('div');
+      infoDiv.className = 'info';
+
+      const previewDiv = document.createElement('div');
+
+      const fileNameDiv = document.createElement('div');
+      fileNameDiv.className = 'fileName';
+      fileNameDiv.textContent = file.name;
+
+      infoDiv.appendChild(previewDiv);
+      infoDiv.appendChild(fileNameDiv);
+      li.appendChild(infoDiv);
+
+      // 建立「刪除」按鈕
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = '刪除';
+      deleteBtn.className = 'delete-btn';
+      deleteBtn.addEventListener('click', function(e) {
+        e.stopPropagation(); // 避免影響拖放排序
+        delete filesMap[id];
+        filesArray = filesArray.filter(f => f !== file);
+        li.parentNode.removeChild(li);
+        console.log("已刪除檔案：", file.name);
+      });
+      li.appendChild(deleteBtn);
+
+      fileList.appendChild(li);
+      renderPreview(file, previewDiv);
+    }
+
+    // 使用 pdf.js 將 PDF 的第一頁渲染成預覽縮圖
+    function renderPreview(file, container) {
+      const url = URL.createObjectURL(file);
+      pdfjsLib.getDocument(url).promise.then(function(pdfDoc) {
+        pdfDoc.getPage(1).then(function(page) {
+          const scale = 0.5; // 調整預覽縮放比例
+          const viewport = page.getViewport({ scale: scale });
+          const canvas = document.createElement("canvas");
+          canvas.className = "previewCanvas";
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const context = canvas.getContext('2d');
+          const renderContext = {
+            canvasContext: context,
+            viewport: viewport
+          };
+          page.render(renderContext).promise.then(function() {
+            container.appendChild(canvas);
+            URL.revokeObjectURL(url);
+          });
+        });
+      }).catch(function(error) {
+        console.error("PDF 預覽渲染錯誤：", error);
+      });
+    }
+
+    // 初始化 SortableJS 以啟用拖放排序
+    let sortable = new Sortable(fileList, {
+      animation: 150,
+      onEnd: function() {
+        const newFilesArray = [];
+        const items = fileList.querySelectorAll('li');
+        items.forEach(item => {
+          const id = item.getAttribute('data-id');
+          if (filesMap[id]) {
+            newFilesArray.push(filesMap[id]);
+          }
+        });
+        filesArray = newFilesArray;
+        console.log("更新檔案順序：", filesArray.map(f => f.name));
+      }
+    });
+
+    // 合併 PDF 按鈕事件：依照排序後的順序合併所有檔案
+    mergeBtn.addEventListener('click', async () => {
+      console.log("【合併 PDF】按鈕被點擊");
+      if (filesArray.length === 0) {
+        alert('請選擇至少一個 PDF 檔案');
+        return;
+      }
+      // 建立新的 PDF 文檔用以合併各檔案頁面
+      const mergedPdf = await PDFDocument.create();
+      for (const file of filesArray) {
+        const arrayBuffer = await file.arrayBuffer();
+        // 使用 ignoreEncryption 選項以避免因加密 PDF 而拋錯
+        const pdf = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+        const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+        copiedPages.forEach(page => mergedPdf.addPage(page));
+      }
+      const mergedPdfBytes = await mergedPdf.save();
+      const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'merged.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      console.log("PDF 合併完成");
+    });
+  </script>
+</body>
+</html>

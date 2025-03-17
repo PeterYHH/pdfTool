@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>PDF 分割</title>
+  <!-- 引入 pdf-lib -->
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 20px 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    /* 將 label 寬度從 180px 調整為 250px */
+    label {
+      display: inline-block;
+      width: 250px;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    input[type="number"],
+    input[type="file"] {
+      width: calc(100% - 260px);
+      padding: 5px;
+      margin-bottom: 10px;
+    }
+    button {
+      display: block;
+      width: 100%;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .note {
+      font-size: 14px;
+      color: #555;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>PDF 分割</h2>
+    <!-- 上傳 PDF 檔案 -->
+    <div>
+      <label for="pdfFile">選擇 PDF：</label>
+      <input type="file" id="pdfFile" accept="application/pdf">
+    </div>
+    <!-- 輸入分割範圍 -->
+    <div>
+      <label for="startPage">起始頁（從 1 開始）：</label>
+      <input type="number" id="startPage" value="1" min="1">
+    </div>
+    <div>
+      <label for="endPage">結束頁（包含設定頁數）：</label>
+      <input type="number" id="endPage" value="1" min="1">
+    </div>
+    <button id="splitBtn">分割 PDF</button>
+    <div class="note">
+      ※ 範例說明：若輸入起始頁 1 與結束頁 3，則將包含第 1、2、3 頁。
+    </div>
+  </div>
+
+  <script>
+    const { PDFDocument } = PDFLib;
+
+    // 當起始頁變動時，自動設定結束頁的最小值與數值
+    document.getElementById('startPage').addEventListener('change', function() {
+      let startVal = parseInt(this.value, 10) || 1;
+      // 若起始頁改變，將結束頁的最小值設為起始頁
+      let endInput = document.getElementById('endPage');
+      endInput.min = startVal;
+      // 如果目前結束頁的值小於起始頁，則自動更新為起始頁
+      if (parseInt(endInput.value, 10) < startVal) {
+        endInput.value = startVal;
+      }
+    });
+
+    document.getElementById('splitBtn').addEventListener('click', async () => {
+      const fileInput = document.getElementById('pdfFile');
+      if (!fileInput.files.length) {
+        alert("請先選擇一個 PDF 檔案");
+        return;
+      }
+      
+      // 取得使用者輸入的起始與結束頁（均為 1-based）
+      const userStartPage = parseInt(document.getElementById('startPage').value, 10);
+      const userEndPage   = parseInt(document.getElementById('endPage').value, 10);
+
+      // 檢查輸入有效性
+      if (isNaN(userStartPage) || isNaN(userEndPage) || userStartPage < 1 || userEndPage < userStartPage) {
+        alert("請確認輸入的頁碼有效且結束頁不小於起始頁");
+        return;
+      }
+
+      // 讀取 PDF 檔案內容
+      const arrayBuffer = await fileInput.files[0].arrayBuffer();
+      // 使用 ignoreEncryption 選項以避免加密 PDF 拋錯
+      const pdfDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+      const totalPages = pdfDoc.getPageCount();
+      
+      // 使用者輸入為 1-based，轉換為 0-based
+      const startIndex = userStartPage - 1;
+      const endIndex = userEndPage - 1; // 結束頁包含設定頁數
+      
+      if (startIndex >= totalPages || endIndex >= totalPages) {
+        alert("輸入的頁碼超出 PDF 總頁數（總頁數：" + totalPages + "）");
+        return;
+      }
+      
+      // 建立一個新的 PDF 用以存放指定頁面
+      const newPdf = await PDFDocument.create();
+      const pageIndices = [];
+      // 從 startIndex 到 endIndex（包含 endIndex）
+      for (let i = startIndex; i <= endIndex; i++) {
+        pageIndices.push(i);
+      }
+      
+      // 複製指定頁面至新 PDF
+      const copiedPages = await newPdf.copyPages(pdfDoc, pageIndices);
+      copiedPages.forEach(page => newPdf.addPage(page));
+      
+      // 儲存新的 PDF 並觸發下載
+      const pdfBytes = await newPdf.save();
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'split.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>
