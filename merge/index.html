@@ -106,6 +106,28 @@
     <button id="addFilesBtn" class="btn">新增檔案</button>
     <!-- 顯示檔案列表 -->
     <ul id="fileList"></ul>
+    
+    <!-- PDF 元資料設定 -->
+    <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+      <h3 style="margin-top: 0; color: #333;">PDF 元資料設定（選填）</h3>
+      <div style="margin-bottom: 10px;">
+        <label for="pdfTitle" style="display: block; margin-bottom: 5px; font-weight: bold;">標題：</label>
+        <input type="text" id="pdfTitle" placeholder="請輸入 PDF 標題" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 3px;">
+      </div>
+      <div style="margin-bottom: 10px;">
+        <label for="pdfAuthor" style="display: block; margin-bottom: 5px; font-weight: bold;">作者：</label>
+        <input type="text" id="pdfAuthor" placeholder="請輸入作者名稱" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 3px;">
+      </div>
+      <div style="margin-bottom: 10px;">
+        <label for="pdfSubject" style="display: block; margin-bottom: 5px; font-weight: bold;">主題：</label>
+        <input type="text" id="pdfSubject" placeholder="請輸入文件主題" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 3px;">
+      </div>
+      <div style="margin-bottom: 10px;">
+        <label for="pdfCreator" style="display: block; margin-bottom: 5px; font-weight: bold;">建立者：</label>
+        <input type="text" id="pdfCreator" placeholder="請輸入建立者資訊" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 3px;">
+      </div>
+    </div>
+    
     <!-- 合併 PDF 按鈕 -->
     <button id="mergeBtn" class="btn">合併 PDF</button>
   </div>
@@ -239,6 +261,21 @@
         const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
         copiedPages.forEach(page => mergedPdf.addPage(page));
       }
+      
+      // 設定 PDF 元資料
+      const title = document.getElementById('pdfTitle').value.trim();
+      const author = document.getElementById('pdfAuthor').value.trim();
+      const subject = document.getElementById('pdfSubject').value.trim();
+      const creator = document.getElementById('pdfCreator').value.trim();
+      
+      if (title) mergedPdf.setTitle(title);
+      if (author) mergedPdf.setAuthor(author);
+      if (subject) mergedPdf.setSubject(subject);
+      if (creator) mergedPdf.setCreator(creator);
+      mergedPdf.setProducer('');
+      mergedPdf.setCreationDate(new Date());
+      mergedPdf.setModificationDate(new Date());
+      
       const mergedPdfBytes = await mergedPdf.save();
       const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
