@@ -271,7 +271,11 @@
       if (title) mergedPdf.setTitle(title);
       if (author) mergedPdf.setAuthor(author);
       if (subject) mergedPdf.setSubject(subject);
-      if (creator) mergedPdf.setCreator(creator);
+      if (creator){
+        mergedPdf.setCreator(creator);
+      }else{
+        mergedPdf.setCreator('');
+      }
       mergedPdf.setProducer('');
       mergedPdf.setCreationDate(new Date());
       mergedPdf.setModificationDate(new Date());
