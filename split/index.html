@@ -51,6 +51,22 @@
     button:hover {
       background: #0056b3;
     }
+    .btn {
+      display: inline-block;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px 0;
+      transition: background 0.3s ease;
+      text-decoration: none;
+    }
+    .btn:hover {
+      background: #0056b3;
+    }
     .note {
       font-size: 14px;
       color: #555;
@@ -60,6 +76,10 @@
 </head>
 <body>
   <div class="container">
+    <!-- 回主頁按鈕 -->
+    <div style="text-align: right; margin-bottom: 10px;">
+      <a href="../index.html" class="btn">回主頁</a>
+    </div>
     <h2>PDF 分割</h2>
     <!-- 上傳 PDF 檔案 -->
     <div>
@@ -75,6 +95,14 @@
       <label for="endPage">結束頁（包含設定頁數）：</label>
       <input type="number" id="endPage" value="1" min="1">
     </div>
+    <!-- 檔名設定 -->
+    <div>
+      <label for="outputFileName">輸出檔名（選填）：</label>
+      <input type="text" id="outputFileName" placeholder="若未填寫，將使用時間戳記命名" style="width: calc(100% - 260px); padding: 5px;">
+      <div class="note" style="margin-top: 5px; margin-bottom: 10px;">
+        ※ 不需要輸入 .pdf 副檔名
+      </div>
+    </div>
     <button id="splitBtn">分割 PDF</button>
     <div class="note">
       ※ 範例說明：若輸入起始頁 1 與結束頁 3，則將包含第 1、2、3 頁。
@@ -83,6 +111,18 @@
 
   <script>
     const { PDFDocument } = PDFLib;
+
+    // 產生時間戳記檔名的函數
+    function generateTimestampFilename() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      return `${year}${month}${day}${hours}${minutes}${seconds}.pdf`;
+    }
 
     // 當起始頁變動時，自動設定結束頁的最小值與數值
     document.getElementById('startPage').addEventListener('change', function() {
@@ -145,9 +185,13 @@
       const blob = new Blob([pdfBytes], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       
+      // 取得使用者輸入的檔名，如果沒有則使用時間戳記
+      const customFileName = document.getElementById('outputFileName').value.trim();
+      const fileName = customFileName ? `${customFileName}.pdf` : generateTimestampFilename();
+      
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'split.pdf';
+      a.download = fileName;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

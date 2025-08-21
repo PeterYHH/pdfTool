@@ -99,7 +99,11 @@
 </head>
 <body>
   <div class="container">
-    <h2>PDF 合併、排序、預覽、新增與刪除</h2>
+    <!-- 回主頁按鈕 -->
+    <div style="text-align: right; margin-bottom: 10px;">
+      <a href="../index.html" class="btn" style="text-decoration: none; display: inline-block;">回主頁</a>
+    </div>
+    <h2>PDF 合併</h2>
     <!-- 隱藏的檔案輸入，用於新增 PDF -->
     <input type="file" id="pdfFiles" multiple accept="application/pdf" style="display: none;">
     <!-- 新增檔案按鈕 -->
@@ -128,6 +132,16 @@
       </div>
     </div>
     
+    <!-- 檔名設定 -->
+    <div style="margin: 20px 0; padding: 15px; background: #e9f7ff; border-radius: 5px;">
+      <h3 style="margin-top: 0; color: #333;">輸出檔名設定</h3>
+      <div style="margin-bottom: 10px;">
+        <label for="outputFileName" style="display: block; margin-bottom: 5px; font-weight: bold;">檔名（選填）：</label>
+        <input type="text" id="outputFileName" placeholder="若未填寫，將使用時間戳記命名" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 3px;">
+        <small style="color: #666; font-size: 12px;">※ 不需要輸入 .pdf 副檔名</small>
+      </div>
+    </div>
+    
     <!-- 合併 PDF 按鈕 -->
     <button id="mergeBtn" class="btn">合併 PDF</button>
   </div>
@@ -145,6 +159,18 @@
     const mergeBtn = document.getElementById('mergeBtn');
 
     console.log("程式碼已載入。");
+
+    // 產生時間戳記檔名的函數
+    function generateTimestampFilename() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      return `${year}${month}${day}${hours}${minutes}${seconds}.pdf`;
+    }
 
     // 新增檔案按鈕事件：點擊後觸發隱藏的檔案輸入
     addFilesBtn.addEventListener('click', () => {
@@ -279,14 +305,19 @@
       const mergedPdfBytes = await mergedPdf.save();
       const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
+      
+      // 取得使用者輸入的檔名，如果沒有則使用時間戳記
+      const customFileName = document.getElementById('outputFileName').value.trim();
+      const fileName = customFileName ? `${customFileName}.pdf` : generateTimestampFilename();
+      
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'merged.pdf';
+      a.download = fileName;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      console.log("PDF 合併完成");
+      console.log("PDF 合併完成，檔名：", fileName);
     });
   </script>
 </body>
