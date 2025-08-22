@@ -1,68 +1,228 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Tool</title>
+    <title>PDF 工具箱 - 專業PDF處理工具</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-        }
-        h1 {
             color: #333;
         }
-        nav ul {
-            list-style-type: none;
-            padding: 0;
+        
+        .container {
+            max-width: 800px;
+            width: 90%;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            text-align: center;
         }
-        nav ul li {
-            margin: 10px 0;
+        
+        .header {
+            margin-bottom: 50px;
         }
-        nav ul li a {
+        
+        .logo {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            font-size: 1rem;
+            color: #888;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .tool-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
             text-decoration: none;
-            color: #007BFF;
-            font-size: 24px;
-            transition: color 0.3s;
+            color: inherit;
+            border: 2px solid transparent;
         }
-        nav ul li a:hover {
-            color: #0056b3;
+        
+        .tool-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
         }
-        svg {
-            width: 32px;
-            height: 32px;
-            vertical-align: middle;
+        
+        .tool-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .tool-icon svg {
+            width: 40px;
+            height: 40px;
+            color: white;
+        }
+        
+        .tool-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .tool-description {
+            font-size: 1rem;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        
+        .tool-features {
+            list-style: none;
+            text-align: left;
+            font-size: 0.9rem;
+            color: #777;
+        }
+        
+        .tool-features li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .tool-features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .footer {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+            color: #999;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                padding: 30px 20px;
+            }
+            
+            .logo {
+                font-size: 2.5rem;
+            }
+            
+            .tools-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .tool-card {
+                padding: 30px 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Welcome to PDF Tool</h1>
-    <nav>
-        <ul>
-            <li>
-                <a href="merge/index.html">
+    <div class="container">
+        <div class="header">
+            <h1 class="logo">PDF 工具箱</h1>
+            <p class="subtitle">專業的 PDF 處理工具集</p>
+            <p class="description">
+                提供簡單易用的 PDF 合併與分割功能，無需安裝軟體，直接在瀏覽器中完成所有操作。
+                支援多檔案處理、自訂排序、預覽功能，讓您的 PDF 處理工作更加高效便捷。
+            </p>
+        </div>
+        
+        <div class="tools-grid">
+            <a href="merge/index.html" class="tool-card">
+                <div class="tool-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
                     </svg>
-                    Merge PDF
-                </a>
-            </li>
-            <li>
-                <a href="split/index.html">
+                </div>
+                <h2 class="tool-title">PDF 合併</h2>
+                <p class="tool-description">
+                    將多個 PDF 檔案合併成單一檔案，支援拖拽排序和即時預覽
+                </p>
+                <ul class="tool-features">
+                    <li>支援多檔案同時上傳</li>
+                    <li>拖拽排序調整檔案順序</li>
+                    <li>第一頁縮圖預覽</li>
+                    <li>自訂 PDF 元資料（標題、作者、主題、建立者）</li>
+                    <li>自訂輸出檔名或自動時間戳記命名</li>
+                </ul>
+            </a>
+            
+            <a href="split/index.html" class="tool-card">
+                <div class="tool-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 7h10v2H7V7zm0 4h10v2H7v-2zm0 4h10v2H7v-2z"/>
+                        <path d="M14,4V8H19L14,4M17,20V16H7V20H17M20,8L14,2H6A2,2 0 0,0 4,4V8H6V4H13V9H18V16H20V8Z"/>
                     </svg>
-                    Split PDF
-                </a>
-            </li>
-        </ul>
-    </nav>
+                </div>
+                <h2 class="tool-title">PDF 分割</h2>
+                <p class="tool-description">
+                    從 PDF 檔案中提取指定頁面範圍，建立新的 PDF 檔案
+                </p>
+                <ul class="tool-features">
+                    <li>指定起始和結束頁面範圍</li>
+                    <li>智慧頁面範圍驗證功能</li>
+                    <li>自訂 PDF 元資料（標題、作者、主題、建立者）</li>
+                    <li>自訂輸出檔名或自動時間戳記命名</li>
+                    <li>自動頁碼驗證和錯誤提示</li>
+                </ul>
+            </a>
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 PDF 工具箱 - 讓 PDF 處理變得更簡單</p>
+        </div>
+    </div>
 </body>
 </html>

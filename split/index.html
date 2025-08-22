@@ -95,6 +95,26 @@
       <label for="endPage">結束頁（包含設定頁數）：</label>
       <input type="number" id="endPage" value="1" min="1">
     </div>
+    <!-- PDF 元資料設定 -->
+    <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+      <h3 style="margin-top: 0; color: #333; font-size: 18px;">PDF 元資料設定（選填）</h3>
+      <div style="margin-bottom: 10px;">
+        <label for="pdfTitle" style="display: inline-block; width: 250px; margin-bottom: 5px; font-weight: bold;">標題：</label>
+        <input type="text" id="pdfTitle" placeholder="請輸入 PDF 標題" style="width: calc(100% - 260px); padding: 5px; border: 1px solid #ddd; border-radius: 3px;">
+      </div>
+      <div style="margin-bottom: 10px;">
+        <label for="pdfAuthor" style="display: inline-block; width: 250px; margin-bottom: 5px; font-weight: bold;">作者：</label>
+        <input type="text" id="pdfAuthor" placeholder="請輸入作者名稱" style="width: calc(100% - 260px); padding: 5px; border: 1px solid #ddd; border-radius: 3px;">
+      </div>
+      <div style="margin-bottom: 10px;">
+        <label for="pdfSubject" style="display: inline-block; width: 250px; margin-bottom: 5px; font-weight: bold;">主題：</label>
+        <input type="text" id="pdfSubject" placeholder="請輸入文件主題" style="width: calc(100% - 260px); padding: 5px; border: 1px solid #ddd; border-radius: 3px;">
+      </div>
+      <div style="margin-bottom: 10px;">
+        <label for="pdfCreator" style="display: inline-block; width: 250px; margin-bottom: 5px; font-weight: bold;">建立者：</label>
+        <input type="text" id="pdfCreator" placeholder="請輸入建立者資訊" style="width: calc(100% - 260px); padding: 5px; border: 1px solid #ddd; border-radius: 3px;">
+      </div>
+    </div>
     <!-- 檔名設定 -->
     <div>
       <label for="outputFileName">輸出檔名（選填）：</label>
@@ -179,6 +199,20 @@
       // 複製指定頁面至新 PDF
       const copiedPages = await newPdf.copyPages(pdfDoc, pageIndices);
       copiedPages.forEach(page => newPdf.addPage(page));
+      
+      // 設定 PDF 元資料
+      const title = document.getElementById('pdfTitle').value.trim();
+      const author = document.getElementById('pdfAuthor').value.trim();
+      const subject = document.getElementById('pdfSubject').value.trim();
+      const creator = document.getElementById('pdfCreator').value.trim();
+      
+      if (title) newPdf.setTitle(title);
+      if (author) newPdf.setAuthor(author);
+      if (subject) newPdf.setSubject(subject);
+      if (creator) newPdf.setCreator(creator);
+      newPdf.setProducer('');
+      newPdf.setCreationDate(new Date());
+      newPdf.setModificationDate(new Date());
       
       // 儲存新的 PDF 並觸發下載
       const pdfBytes = await newPdf.save();
