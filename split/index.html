@@ -88,6 +88,45 @@
       border-color: #0ea5e9;
     }
     
+    .upload-area {
+      border: 3px dashed #0ea5e9;
+      border-radius: 15px;
+      padding: 40px;
+      text-align: center;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .upload-area:hover, .upload-area.dragover {
+      border-color: #0284c7;
+      background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+      transform: translateY(-2px);
+    }
+    
+    .upload-area.dragover {
+      box-shadow: 0 8px 25px rgba(14, 165, 233, 0.3);
+    }
+    
+    .upload-area .upload-icon {
+      font-size: 3rem;
+      color: #0ea5e9;
+      margin-bottom: 15px;
+    }
+    
+    .upload-area .upload-text {
+      font-size: 1.1rem;
+      color: #333;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    
+    .upload-area .upload-hint {
+      font-size: 0.9rem;
+      color: #666;
+    }
+    
     .range-section {
       background: linear-gradient(135deg, #f8f9ff, #f1f3ff);
       border-color: #667eea;
@@ -209,10 +248,12 @@
     <!-- 上傳 PDF 檔案 -->
     <div class="form-section upload-section">
       <h3>選擇 PDF 檔案</h3>
-      <div class="form-group">
-        <label for="pdfFile">選擇 PDF：</label>
-        <input type="file" id="pdfFile" accept="application/pdf">
+      <div class="upload-area" id="uploadArea">
+        <div class="upload-icon">📄</div>
+        <div class="upload-text">點擊選擇 PDF 檔案或拖曳檔案至此</div>
+        <div class="upload-hint">僅支援單一 PDF 檔案</div>
       </div>
+      <input type="file" id="pdfFile" accept="application/pdf" style="display: none;">
     </div>
     
     <!-- 輸入分割範圍 -->
@@ -274,6 +315,8 @@
 
   <script>
     const { PDFDocument } = PDFLib;
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('pdfFile');
 
     // 產生時間戳記檔名的函數
     function generateTimestampFilename() {
@@ -286,6 +329,76 @@
       const seconds = String(now.getSeconds()).padStart(2, '0');
       return `${year}${month}${day}${hours}${minutes}${seconds}.pdf`;
     }
+
+    // 拖曳上傳功能
+    uploadArea.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    // 防止預設的拖曳行為
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      uploadArea.addEventListener(eventName, preventDefaults, false);
+      document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    // 添加視覺回饋
+    ['dragenter', 'dragover'].forEach(eventName => {
+      uploadArea.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      uploadArea.addEventListener(eventName, unhighlight, false);
+    });
+
+    // 處理檔案拖曳
+    uploadArea.addEventListener('drop', handleDrop, false);
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    function highlight() {
+      uploadArea.classList.add('dragover');
+    }
+
+    function unhighlight() {
+      uploadArea.classList.remove('dragover');
+    }
+
+    function handleDrop(e) {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      
+      if (files.length > 0) {
+        const file = files[0];
+        if (file.type === 'application/pdf') {
+          // 創建 FileList 物件給 input
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(file);
+          fileInput.files = dataTransfer.files;
+          
+          // 更新顯示
+          updateUploadAreaText(file.name);
+        } else {
+          alert('請選擇 PDF 檔案');
+        }
+      }
+    }
+
+    function updateUploadAreaText(fileName) {
+      const uploadText = uploadArea.querySelector('.upload-text');
+      const uploadHint = uploadArea.querySelector('.upload-hint');
+      uploadText.textContent = `已選擇：${fileName}`;
+      uploadHint.textContent = '點擊可重新選擇檔案';
+    }
+
+    // 檔案輸入變更事件
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length > 0) {
+        updateUploadAreaText(fileInput.files[0].name);
+      }
+    });
 
     // 當起始頁變動時，自動設定結束頁的最小值與數值
     document.getElementById('startPage').addEventListener('change', function() {

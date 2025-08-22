@@ -87,6 +87,45 @@
       margin-bottom: 20px;
     }
     
+    .upload-area {
+      border: 3px dashed #667eea;
+      border-radius: 15px;
+      padding: 40px;
+      text-align: center;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #f8f9ff, #f1f3ff);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .upload-area:hover, .upload-area.dragover {
+      border-color: #4f46e5;
+      background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+      transform: translateY(-2px);
+    }
+    
+    .upload-area.dragover {
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+    
+    .upload-area .upload-icon {
+      font-size: 3rem;
+      color: #667eea;
+      margin-bottom: 15px;
+    }
+    
+    .upload-area .upload-text {
+      font-size: 1.1rem;
+      color: #333;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    
+    .upload-area .upload-hint {
+      font-size: 0.9rem;
+      color: #666;
+    }
+    
     #fileList {
       list-style: none;
       padding: 0;
@@ -247,8 +286,15 @@
     <!-- 隱藏的檔案輸入，用於新增 PDF -->
     <input type="file" id="pdfFiles" multiple accept="application/pdf" style="display: none;">
     
+    <!-- 拖曳上傳區域 -->
+    <div class="upload-area" id="uploadArea">
+      <div class="upload-icon">📄</div>
+      <div class="upload-text">點擊選擇 PDF 檔案或拖曳檔案至此</div>
+      <div class="upload-hint">支援多檔案同時上傳</div>
+    </div>
+    
     <!-- 新增檔案按鈕 -->
-    <button id="addFilesBtn" class="btn">新增檔案</button>
+    <button id="addFilesBtn" class="btn">或點此新增更多檔案</button>
     
     <!-- 顯示檔案列表 -->
     <ul id="fileList"></ul>
@@ -299,6 +345,7 @@
     const fileList = document.getElementById('fileList');
     const addFilesBtn = document.getElementById('addFilesBtn');
     const mergeBtn = document.getElementById('mergeBtn');
+    const uploadArea = document.getElementById('uploadArea');
 
     console.log("程式碼已載入。");
 
@@ -314,6 +361,58 @@
       return `${year}${month}${day}${hours}${minutes}${seconds}.pdf`;
     }
 
+    // 拖曳上傳功能
+    uploadArea.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    // 防止預設的拖曳行為
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      uploadArea.addEventListener(eventName, preventDefaults, false);
+      document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    // 添加視覺回饋
+    ['dragenter', 'dragover'].forEach(eventName => {
+      uploadArea.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      uploadArea.addEventListener(eventName, unhighlight, false);
+    });
+
+    // 處理檔案拖曳
+    uploadArea.addEventListener('drop', handleDrop, false);
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    function highlight() {
+      uploadArea.classList.add('dragover');
+    }
+
+    function unhighlight() {
+      uploadArea.classList.remove('dragover');
+    }
+
+    function handleDrop(e) {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      handleFiles(files);
+    }
+
+    function handleFiles(files) {
+      Array.from(files).forEach(file => {
+        if (file.type === 'application/pdf') {
+          addFileItem(file);
+        } else {
+          alert(`檔案 "${file.name}" 不是 PDF 格式，已略過`);
+        }
+      });
+    }
+
     // 新增檔案按鈕事件：點擊後觸發隱藏的檔案輸入
     addFilesBtn.addEventListener('click', () => {
       console.log("【新增檔案】按鈕被點擊");
@@ -324,9 +423,7 @@
     fileInput.addEventListener('change', () => {
       const selectedFiles = Array.from(fileInput.files);
       console.log("選取檔案：", selectedFiles);
-      selectedFiles.forEach(file => {
-        addFileItem(file);
-      });
+      handleFiles(selectedFiles);
       // 清空檔案輸入，方便下次選取相同檔案
       fileInput.value = "";
     });
