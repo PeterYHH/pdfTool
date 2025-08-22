@@ -2,128 +2,271 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>PDF 分割</title>
+  <!-- 引入 Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
   <!-- 引入 pdf-lib -->
   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
     body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      padding: 20px;
+      font-family: 'Noto Sans TC', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+      padding: 20px 0;
     }
+    
     .container {
-      max-width: 600px;
-      margin: auto;
-      background: #fff;
-      padding: 20px 30px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      max-width: 700px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      padding: 40px;
     }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .back-home {
+      text-align: right;
+      margin-bottom: 20px;
+    }
+    
     h2 {
+      font-size: 2.5rem;
       text-align: center;
       color: #333;
+      margin-bottom: 30px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
     }
-    /* 將 label 寬度從 180px 調整為 250px */
-    label {
-      display: inline-block;
-      width: 250px;
-      margin-bottom: 10px;
-      font-weight: bold;
-    }
-    input[type="number"],
-    input[type="file"] {
-      width: calc(100% - 260px);
-      padding: 5px;
-      margin-bottom: 10px;
-    }
-    button {
-      display: block;
-      width: 100%;
-      background: #007bff;
-      color: #fff;
-      border: none;
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-    button:hover {
-      background: #0056b3;
-    }
+    
     .btn {
       display: inline-block;
-      background: #007bff;
+      background: linear-gradient(135deg, #667eea, #764ba2);
       color: #fff;
       border: none;
-      border-radius: 5px;
-      padding: 10px 20px;
+      border-radius: 12px;
+      padding: 12px 24px;
       font-size: 16px;
+      font-weight: 500;
       cursor: pointer;
       margin: 10px 0;
-      transition: background 0.3s ease;
+      transition: all 0.3s ease;
       text-decoration: none;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
     }
+    
     .btn:hover {
-      background: #0056b3;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
     }
-    .note {
+    
+    .form-section {
+      margin: 30px 0;
+      padding: 25px;
+      border-radius: 15px;
+      border: 2px solid #e9ecef;
+      background: #fff;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .upload-section {
+      background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+      border-color: #0ea5e9;
+    }
+    
+    .range-section {
+      background: linear-gradient(135deg, #f8f9ff, #f1f3ff);
+      border-color: #667eea;
+    }
+    
+    .metadata-section {
+      background: linear-gradient(135deg, #fef3f2, #fee2e2);
+      border-color: #f87171;
+    }
+    
+    .filename-section {
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      border-color: #22c55e;
+    }
+    
+    .form-section h3 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: #333;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e9ecef;
+      border-radius: 10px;
       font-size: 14px;
-      color: #555;
-      margin-top: 10px;
+      transition: all 0.3s ease;
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-group small {
+      color: #666;
+      font-size: 12px;
+      margin-top: 5px;
+      display: block;
+    }
+    
+    .input-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    
+    .split-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      font-size: 18px;
+      font-weight: 600;
+      padding: 16px;
+      margin-top: 20px;
+    }
+    
+    .split-btn:hover {
+      background: linear-gradient(135deg, #16a34a, #15803d);
+    }
+    
+    .note {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #666;
+      border-left: 4px solid #667eea;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        margin: 10px;
+        padding: 20px;
+      }
+      
+      h2 {
+        font-size: 2rem;
+      }
+      
+      .form-section {
+        padding: 20px;
+      }
+      
+      .input-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- 回主頁按鈕 -->
-    <div style="text-align: right; margin-bottom: 10px;">
+    <div class="back-home">
       <a href="../index.html" class="btn">回主頁</a>
     </div>
-    <h2>PDF 分割</h2>
+    
+    <div class="header">
+      <h2>PDF 分割</h2>
+    </div>
+    
     <!-- 上傳 PDF 檔案 -->
-    <div>
-      <label for="pdfFile">選擇 PDF：</label>
-      <input type="file" id="pdfFile" accept="application/pdf">
+    <div class="form-section upload-section">
+      <h3>選擇 PDF 檔案</h3>
+      <div class="form-group">
+        <label for="pdfFile">選擇 PDF：</label>
+        <input type="file" id="pdfFile" accept="application/pdf">
+      </div>
     </div>
+    
     <!-- 輸入分割範圍 -->
-    <div>
-      <label for="startPage">起始頁（從 1 開始）：</label>
-      <input type="number" id="startPage" value="1" min="1">
+    <div class="form-section range-section">
+      <h3>設定分割範圍</h3>
+      <div class="input-row">
+        <div class="form-group">
+          <label for="startPage">起始頁（從 1 開始）：</label>
+          <input type="number" id="startPage" value="1" min="1">
+        </div>
+        <div class="form-group">
+          <label for="endPage">結束頁（包含設定頁數）：</label>
+          <input type="number" id="endPage" value="1" min="1">
+        </div>
+      </div>
     </div>
-    <div>
-      <label for="endPage">結束頁（包含設定頁數）：</label>
-      <input type="number" id="endPage" value="1" min="1">
-    </div>
+    
     <!-- PDF 元資料設定 -->
-    <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 5px;">
-      <h3 style="margin-top: 0; color: #333; font-size: 18px;">PDF 元資料設定（選填）</h3>
-      <div style="margin-bottom: 10px;">
-        <label for="pdfTitle" style="display: inline-block; width: 250px; margin-bottom: 5px; font-weight: bold;">標題：</label>
-        <input type="text" id="pdfTitle" placeholder="請輸入 PDF 標題" style="width: calc(100% - 260px); padding: 5px; border: 1px solid #ddd; border-radius: 3px;">
+    <div class="form-section metadata-section">
+      <h3>PDF 元資料設定（選填）</h3>
+      <div class="input-row">
+        <div class="form-group">
+          <label for="pdfTitle">標題：</label>
+          <input type="text" id="pdfTitle" placeholder="請輸入 PDF 標題">
+        </div>
+        <div class="form-group">
+          <label for="pdfAuthor">作者：</label>
+          <input type="text" id="pdfAuthor" placeholder="請輸入作者名稱">
+        </div>
       </div>
-      <div style="margin-bottom: 10px;">
-        <label for="pdfAuthor" style="display: inline-block; width: 250px; margin-bottom: 5px; font-weight: bold;">作者：</label>
-        <input type="text" id="pdfAuthor" placeholder="請輸入作者名稱" style="width: calc(100% - 260px); padding: 5px; border: 1px solid #ddd; border-radius: 3px;">
-      </div>
-      <div style="margin-bottom: 10px;">
-        <label for="pdfSubject" style="display: inline-block; width: 250px; margin-bottom: 5px; font-weight: bold;">主題：</label>
-        <input type="text" id="pdfSubject" placeholder="請輸入文件主題" style="width: calc(100% - 260px); padding: 5px; border: 1px solid #ddd; border-radius: 3px;">
-      </div>
-      <div style="margin-bottom: 10px;">
-        <label for="pdfCreator" style="display: inline-block; width: 250px; margin-bottom: 5px; font-weight: bold;">建立者：</label>
-        <input type="text" id="pdfCreator" placeholder="請輸入建立者資訊" style="width: calc(100% - 260px); padding: 5px; border: 1px solid #ddd; border-radius: 3px;">
+      <div class="input-row">
+        <div class="form-group">
+          <label for="pdfSubject">主題：</label>
+          <input type="text" id="pdfSubject" placeholder="請輸入文件主題">
+        </div>
+        <div class="form-group">
+          <label for="pdfCreator">建立者：</label>
+          <input type="text" id="pdfCreator" placeholder="請輸入建立者資訊">
+        </div>
       </div>
     </div>
+    
     <!-- 檔名設定 -->
-    <div>
-      <label for="outputFileName">輸出檔名（選填）：</label>
-      <input type="text" id="outputFileName" placeholder="若未填寫，將使用時間戳記命名" style="width: calc(100% - 260px); padding: 5px;">
-      <div class="note" style="margin-top: 5px; margin-bottom: 10px;">
-        ※ 不需要輸入 .pdf 副檔名
+    <div class="form-section filename-section">
+      <h3>輸出檔名設定</h3>
+      <div class="form-group">
+        <label for="outputFileName">輸出檔名（選填）：</label>
+        <input type="text" id="outputFileName" placeholder="若未填寫，將使用時間戳記命名">
+        <small>※ 不需要輸入 .pdf 副檔名</small>
       </div>
     </div>
-    <button id="splitBtn">分割 PDF</button>
+    
+    <button id="splitBtn" class="btn split-btn">分割 PDF</button>
+    
     <div class="note">
       ※ 範例說明：若輸入起始頁 1 與結束頁 3，則將包含第 1、2、3 頁。
     </div>

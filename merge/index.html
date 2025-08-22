@@ -14,131 +14,273 @@
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.6.172/pdf.worker.min.js';
   </script>
   <!-- 引入 Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Noto Sans TC', sans-serif;
-      background: #f2f2f2;
+    * {
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
-    .container {
-      max-width: 800px;
-      margin: 30px auto;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      padding: 20px 30px;
-    }
-    h2 {
-      text-align: center;
+    
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
       color: #333;
+      padding: 20px 0;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .back-home {
+      text-align: right;
       margin-bottom: 20px;
     }
+    
+    h2 {
+      font-size: 2.5rem;
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+    }
+    
     .btn {
       display: inline-block;
-      background: #007bff;
+      background: linear-gradient(135deg, #667eea, #764ba2);
       color: #fff;
       border: none;
-      border-radius: 5px;
-      padding: 10px 20px;
+      border-radius: 12px;
+      padding: 12px 24px;
       font-size: 16px;
+      font-weight: 500;
       cursor: pointer;
       margin: 10px 0;
-      transition: background 0.3s ease;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
     }
+    
     .btn:hover {
-      background: #0056b3;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
     }
+    
     #addFilesBtn {
       margin-bottom: 20px;
     }
+    
     #fileList {
       list-style: none;
       padding: 0;
       margin: 0;
     }
+    
     #fileList li {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: #fafafa;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      padding: 15px;
-      margin-bottom: 10px;
+      background: #fff;
+      border: 2px solid #e9ecef;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 15px;
       position: relative;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     }
+    
+    #fileList li:hover {
+      border-color: #667eea;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    }
+    
     #fileList li .info {
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 20px;
     }
+    
     .previewCanvas {
-      border: 1px solid #ddd;
-      border-radius: 5px;
+      border: 2px solid #e9ecef;
+      border-radius: 10px;
       max-width: 120px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
+    
     .fileName {
       font-size: 16px;
       color: #333;
+      font-weight: 500;
     }
+    
     .delete-btn {
-      background: #dc3545;
+      background: linear-gradient(135deg, #ff6b6b, #ee5a52);
       border: none;
       color: #fff;
-      border-radius: 5px;
-      padding: 5px 10px;
+      border-radius: 8px;
+      padding: 8px 16px;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
     }
+    
     .delete-btn:hover {
-      background: #a71d2a;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+    }
+    
+    .metadata-section, .filename-section {
+      margin: 30px 0;
+      padding: 25px;
+      border-radius: 15px;
+      border: 2px solid #e9ecef;
+      background: #fff;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .metadata-section {
+      background: linear-gradient(135deg, #f8f9ff, #f1f3ff);
+      border-color: #667eea;
+    }
+    
+    .filename-section {
+      background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+      border-color: #0ea5e9;
+    }
+    
+    .metadata-section h3, .filename-section h3 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: #333;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e9ecef;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-group small {
+      color: #666;
+      font-size: 12px;
+      margin-top: 5px;
+      display: block;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        margin: 10px;
+        padding: 20px;
+      }
+      
+      h2 {
+        font-size: 2rem;
+      }
+      
+      #fileList li {
+        padding: 15px;
+      }
+      
+      #fileList li .info {
+        gap: 15px;
+      }
+      
+      .metadata-section, .filename-section {
+        padding: 20px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- 回主頁按鈕 -->
-    <div style="text-align: right; margin-bottom: 10px;">
-      <a href="../index.html" class="btn" style="text-decoration: none; display: inline-block;">回主頁</a>
+    <div class="back-home">
+      <a href="../index.html" class="btn">回主頁</a>
     </div>
-    <h2>PDF 合併</h2>
+    
+    <div class="header">
+      <h2>PDF 合併</h2>
+    </div>
+    
     <!-- 隱藏的檔案輸入，用於新增 PDF -->
     <input type="file" id="pdfFiles" multiple accept="application/pdf" style="display: none;">
+    
     <!-- 新增檔案按鈕 -->
     <button id="addFilesBtn" class="btn">新增檔案</button>
+    
     <!-- 顯示檔案列表 -->
     <ul id="fileList"></ul>
     
     <!-- PDF 元資料設定 -->
-    <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 5px;">
-      <h3 style="margin-top: 0; color: #333;">PDF 元資料設定（選填）</h3>
-      <div style="margin-bottom: 10px;">
-        <label for="pdfTitle" style="display: block; margin-bottom: 5px; font-weight: bold;">標題：</label>
-        <input type="text" id="pdfTitle" placeholder="請輸入 PDF 標題" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 3px;">
+    <div class="metadata-section">
+      <h3>PDF 元資料設定（選填）</h3>
+      <div class="form-group">
+        <label for="pdfTitle">標題：</label>
+        <input type="text" id="pdfTitle" placeholder="請輸入 PDF 標題">
       </div>
-      <div style="margin-bottom: 10px;">
-        <label for="pdfAuthor" style="display: block; margin-bottom: 5px; font-weight: bold;">作者：</label>
-        <input type="text" id="pdfAuthor" placeholder="請輸入作者名稱" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 3px;">
+      <div class="form-group">
+        <label for="pdfAuthor">作者：</label>
+        <input type="text" id="pdfAuthor" placeholder="請輸入作者名稱">
       </div>
-      <div style="margin-bottom: 10px;">
-        <label for="pdfSubject" style="display: block; margin-bottom: 5px; font-weight: bold;">主題：</label>
-        <input type="text" id="pdfSubject" placeholder="請輸入文件主題" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 3px;">
+      <div class="form-group">
+        <label for="pdfSubject">主題：</label>
+        <input type="text" id="pdfSubject" placeholder="請輸入文件主題">
       </div>
-      <div style="margin-bottom: 10px;">
-        <label for="pdfCreator" style="display: block; margin-bottom: 5px; font-weight: bold;">建立者：</label>
-        <input type="text" id="pdfCreator" placeholder="請輸入建立者資訊" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 3px;">
+      <div class="form-group">
+        <label for="pdfCreator">建立者：</label>
+        <input type="text" id="pdfCreator" placeholder="請輸入建立者資訊">
       </div>
     </div>
     
     <!-- 檔名設定 -->
-    <div style="margin: 20px 0; padding: 15px; background: #e9f7ff; border-radius: 5px;">
-      <h3 style="margin-top: 0; color: #333;">輸出檔名設定</h3>
-      <div style="margin-bottom: 10px;">
-        <label for="outputFileName" style="display: block; margin-bottom: 5px; font-weight: bold;">檔名（選填）：</label>
-        <input type="text" id="outputFileName" placeholder="若未填寫，將使用時間戳記命名" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 3px;">
-        <small style="color: #666; font-size: 12px;">※ 不需要輸入 .pdf 副檔名</small>
+    <div class="filename-section">
+      <h3>輸出檔名設定</h3>
+      <div class="form-group">
+        <label for="outputFileName">檔名（選填）：</label>
+        <input type="text" id="outputFileName" placeholder="若未填寫，將使用時間戳記命名">
+        <small>※ 不需要輸入 .pdf 副檔名</small>
       </div>
     </div>
     
